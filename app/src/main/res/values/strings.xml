@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">App Asset Desa</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="nama_lengkap">Nama Lengkap</string>
+    <string name="email">Email</string>
+    <string name="konfirmasi_password">Konfirmasi Password</string>
+    <string name="login">Login</string>
+    <string name="registrasi">Registrasi</string>
+    <string name="menu">Menu</string>
+    <string name="asset_desa">Asset Desa</string>
+    <string name="sewa_asset">Sewa Asset</string>
+    <string name="phone">Phone</string>
+    <string name="simpan">Simpan</string>
+    <string name="harga_asset">Harga Asset</string>
+    <string name="pilih_asset">Pilih Asset</string>
+    <string name="nama_asset">Nama Asset</string>
+    <string name="kritik_dan_saran">Kritik dan Saran</string>
+</resources>

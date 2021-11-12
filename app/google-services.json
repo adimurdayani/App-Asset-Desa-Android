@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "527751793403",
+    "project_id": "app-asset-desa-c65cf",
+    "storage_bucket": "app-asset-desa-c65cf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:527751793403:android:0db576aaa3bcbbc01ffe5e",
+        "android_client_info": {
+          "package_name": "com.jumarni.appassetdesa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "527751793403-b5gpcnlqo7s7q83qv6vg522jr90f4bds.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDiPmiS1lcTu_MoGtn7aQQkf09PoTYgJOc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "527751793403-b5gpcnlqo7s7q83qv6vg522jr90f4bds.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
