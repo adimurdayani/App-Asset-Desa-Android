@@ -3,13 +3,16 @@ package com.jumarni.appassetdesa.view.activity;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,6 +21,8 @@ import android.widget.Toast;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputEditText;
@@ -33,6 +38,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class TambahKritikActivity extends AppCompatActivity {
     private ImageView btn_kembali;
@@ -53,6 +60,7 @@ public class TambahKritikActivity extends AppCompatActivity {
         init();
     }
 
+    @SuppressLint( "SetTextI18n" )
     public void init() {
         preferences = getApplication().getSharedPreferences("user", Context.MODE_PRIVATE);
         btn_kembali = findViewById(R.id.btn_kembali);
@@ -87,7 +95,6 @@ public class TambahKritikActivity extends AppCompatActivity {
         dataKritikModels = new ArrayList<>();
         dialog.setMessage("Loading...");
         dialog.show();
-
         kirimData = new StringRequest(Request.Method.POST, URLServer.POSTKRITIK, response -> {
             try {
                 JSONObject object = new JSONObject(response);
@@ -96,23 +103,18 @@ public class TambahKritikActivity extends AppCompatActivity {
                     DataKritikModel kirimKritik = new DataKritikModel();
                     kirimKritik.setUser_id(data.getInt("user_id"));
                     kirimKritik.setKritik(data.getString("kritik"));
-
-                    HomeActivity.dataKritikModels.add(0, kirimKritik);
-                    HomeActivity.rc_data.getAdapter().notifyItemInserted(0);
-                    HomeActivity.rc_data.getAdapter().notifyDataSetChanged();
-                    finish();
-                    Toast.makeText(this, "Data terkirim!", Toast.LENGTH_LONG).show();
+                    showDialog();
                 } else {
-                    Toast.makeText(this, "Message: " + object.getString("message"), Toast.LENGTH_SHORT).show();
+                    showError(object.getString("message"));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "Message: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                showError(e.toString());
             }
             dialog.dismiss();
         }, error -> {
             dialog.dismiss();
-            error.printStackTrace();
+            Log.d("respon", "err: " + error.networkResponse);
         }) {
             @Nullable
             @Override
@@ -123,8 +125,44 @@ public class TambahKritikActivity extends AppCompatActivity {
                 return map;
             }
         };
+        setKoneksiInternet();
         RequestQueue koneksi = Volley.newRequestQueue(this);
         koneksi.add(kirimData);
+    }
+
+    private void showDialog() {
+        new SweetAlertDialog(this, SweetAlertDialog.SUCCESS_TYPE)
+                .setTitleText("Sukses!")
+                .show();
+    }
+
+    private void setKoneksiInternet() {
+        kirimData.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 2000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                    showError("Koneksi gagal");
+                }
+            }
+        });
+    }
+
+    private void showError(String string) {
+        new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
+                .setTitleText("Oops...")
+                .setContentText(string)
+                .show();
     }
 
     public void cekvalidasi() {

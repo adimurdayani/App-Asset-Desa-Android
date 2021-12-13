@@ -28,9 +28,34 @@
         android:textSize="18sp" />
 
     <TextView
+        android:id="@+id/jumlah_asset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/harga_aset"
+        android:fontFamily="@font/poppins_medium"
+        android:text="0"
+        android:textColor="@color/black"
+        android:textSize="14sp" />
+
+    <TextView
         android:id="@+id/aset_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
+
+
+    <TextView
+        android:id="@+id/jml_asetlama"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible" />
+
+    <TextView
+        android:layout_toEndOf="@id/jml_asetlama"
+        android:id="@+id/jml_asetbaru"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible" />
 
 </RelativeLayout>

@@ -13,12 +13,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -27,6 +25,8 @@ import com.jumarni.appassetdesa.R;
 import com.jumarni.appassetdesa.api.URLServer;
 import com.jumarni.appassetdesa.model.DataPendudukModel;
 import com.jumarni.appassetdesa.model.Dusun;
+import com.jumarni.appassetdesa.model.Namakk;
+import com.jumarni.appassetdesa.view.activity.DetailKkActivity;
 import com.jumarni.appassetdesa.view.activity.DetailPendudukActivity;
 
 import org.json.JSONArray;
@@ -35,25 +35,23 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-public class PendudukAdapter extends RecyclerView.Adapter<PendudukAdapter.HolderData> {
+public class DetailPendudukAdapter extends RecyclerView.Adapter<DetailPendudukAdapter.HolderData> {
     private Context context;
-    private ArrayList<Dusun> dusuns;
-    private StringRequest getPenduduk, getPendudu2;
-    private int dusun_id;
+    private ArrayList<Namakk> namakks;
+    private int kk_id;
+    private StringRequest getPenduduk;
 
-    public PendudukAdapter(Context context, ArrayList<Dusun> dusuns) {
+    public DetailPendudukAdapter(Context context, ArrayList<Namakk> namakks) {
         this.context = context;
-        this.dusuns = dusuns;
+        this.namakks = namakks;
     }
 
     @NonNull
     @Override
     public HolderData onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_penduduk, parent, false);
+                .inflate(R.layout.list_jml_art, parent, false);
         return new HolderData(view);
     }
 
@@ -61,29 +59,24 @@ public class PendudukAdapter extends RecyclerView.Adapter<PendudukAdapter.Holder
     @Override
     public void onBindViewHolder(@NonNull HolderData holder, int position) {
 
-        Dusun dusun = dusuns.get(position);
-
-        holder.dusun_id.setText(String.valueOf(dusun.getId_dusun()));
-        holder.txt_dusun.setText("Dusun " + dusun.getNama_dusun());
-        Log.d("Respon", "Data: " + dusun.getId_dusun());
-        dusun_id = Integer.parseInt(holder.dusun_id.getText().toString());
+        Namakk datanama = namakks.get(position);
+        holder.nama.setText(datanama.getNama_kk());
 
         holder.layout.setOnClickListener(v -> {
-            Intent intent = new Intent(context, DetailPendudukActivity.class);
-            intent.putExtra("dusun_id", dusun.getId_dusun());
+            Intent intent = new Intent(context, DetailKkActivity.class);
+            intent.putExtra("kk_id", datanama.getId_kk());
             context.startActivity(intent);
-            Log.d("Respon", "Data ID DUSUN: " + dusun.getId_dusun());
+            Log.d("Respon", "Data: " + datanama.getId_kk());
         });
+        kk_id = datanama.getId_kk();
 
-        if (dusun_id != 0) {
-            getPenduduk = new StringRequest(Request.Method.GET, URLServer.GETJMLPERRT +
-                    dusun_id, response -> {
+        if (kk_id != 0){
+            getPenduduk = new StringRequest(Request.Method.GET, URLServer.GETJMLART
+                    + kk_id, response -> {
                 try {
                     JSONObject object = new JSONObject(response);
-                    if (object.getBoolean("status")) {
-                        holder.jml_rt.setText(object.getString("data"));
-                    } else {
-                        Toast.makeText(context, object.getString("message"), Toast.LENGTH_SHORT).show();
+                    if (!object.getString("data").matches("0")) {
+                        holder.jml_art.setText(object.getString("data"));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -91,40 +84,25 @@ public class PendudukAdapter extends RecyclerView.Adapter<PendudukAdapter.Holder
             }, Throwable::printStackTrace);
             RequestQueue koneksi = Volley.newRequestQueue(context);
             koneksi.add(getPenduduk);
-
-            getPendudu2 = new StringRequest(Request.Method.GET, URLServer.GETJMLKK +
-                    dusun_id, response -> {
-                try {
-                    JSONObject object = new JSONObject(response);
-                    if (object.getBoolean("status")) {
-                        holder.jml_penduduk.setText(object.getString("data"));
-                    } else {
-                        Toast.makeText(context, object.getString("message"), Toast.LENGTH_SHORT).show();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }, Throwable::printStackTrace);
-            RequestQueue koneksi2 = Volley.newRequestQueue(context);
-            koneksi2.add(getPendudu2);
         }
+
     }
 
     @Override
     public int getItemCount() {
-        return dusuns.size();
+        return namakks.size();
     }
 
     Filter searchData = new Filter() {
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
-            ArrayList<Dusun> searchList = new ArrayList<>();
+            ArrayList<Namakk> searchList = new ArrayList<>();
             if (constraint.toString().isEmpty()) {
-                searchList.addAll(dusuns);
+                searchList.addAll(namakks);
             } else {
-                for (Dusun getdatapenduduk : dusuns) {
-                    if (getdatapenduduk.getNama_dusun().toLowerCase().contains(constraint.toString().toLowerCase())) {
-                        searchList.add(getdatapenduduk);
+                for (Namakk getnama : namakks) {
+                    if (getnama.getNama_kk().toLowerCase().contains(constraint.toString().toLowerCase())) {
+                        searchList.add(getnama);
                     }
                 }
             }
@@ -135,8 +113,8 @@ public class PendudukAdapter extends RecyclerView.Adapter<PendudukAdapter.Holder
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            dusuns.clear();
-            dusuns.addAll((Collection<? extends Dusun>) results.values);
+            namakks.clear();
+            namakks.addAll((Collection<? extends Namakk>) results.values);
             notifyDataSetChanged();
         }
     };
@@ -146,15 +124,13 @@ public class PendudukAdapter extends RecyclerView.Adapter<PendudukAdapter.Holder
     }
 
     public class HolderData extends RecyclerView.ViewHolder {
-        private TextView jml_rt, jml_penduduk, txt_dusun, dusun_id;
+        private TextView nama, jml_art;
         private RelativeLayout layout;
 
         public HolderData(@NonNull View itemView) {
             super(itemView);
-            txt_dusun = itemView.findViewById(R.id.nama_dusun);
-            jml_rt = itemView.findViewById(R.id.jml_rt);
-            jml_penduduk = itemView.findViewById(R.id.jml_penduduk);
-            dusun_id = itemView.findViewById(R.id.dusun_id);
+            nama = itemView.findViewById(R.id.nama);
+            jml_art = itemView.findViewById(R.id.jml_art);
             layout = itemView.findViewById(R.id.layout);
         }
     }

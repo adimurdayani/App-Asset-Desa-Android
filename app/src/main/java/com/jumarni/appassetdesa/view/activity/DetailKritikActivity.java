@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +19,8 @@ import android.widget.Toast;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.jumarni.appassetdesa.R;
@@ -31,6 +35,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class DetailKritikActivity extends AppCompatActivity {
     private ImageView btn_kembali;
@@ -66,7 +72,6 @@ public class DetailKritikActivity extends AppCompatActivity {
     }
 
     public void setGetDetailkritik() {
-
         getDetailkritik = new StringRequest(Request.Method.GET, URLServer.GETKRITIKID + id_kritik, response -> {
             try {
                 JSONObject object = new JSONObject(response);
@@ -79,14 +84,47 @@ public class DetailKritikActivity extends AppCompatActivity {
                     txt_kritik.setText(data.getString("kritik"));
                     txt_jawaban.setText(data.getString("jawaban"));
                 } else {
-                    Toast.makeText(this, object.getString("message"), Toast.LENGTH_SHORT).show();
+                    showError(object.getString("message"));
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
+                showError(e.toString());
             }
-        }, Throwable::printStackTrace);
+        }, error -> {
+            Log.d("respon", "err: " + error.networkResponse);
+        });
+        setKoneksiInternet();
         RequestQueue koneksi = Volley.newRequestQueue(this);
         koneksi.add(getDetailkritik);
+    }
+
+
+    private void setKoneksiInternet() {
+        getDetailkritik.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 2000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                    showError("Koneksi gagal");
+                }
+            }
+        });
+    }
+
+    private void showError(String string) {
+        new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
+                .setTitleText("Oops...")
+                .setContentText(string)
+                .show();
     }
 
     @Override

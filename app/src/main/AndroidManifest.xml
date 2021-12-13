@@ -15,7 +15,10 @@
         android:theme="@style/Theme.AppAssetDesa"
         android:usesCleartextTraffic="true"
         Android:noHistory="true">
-        <activity android:name=".view.activity.TambahKritikActivity"></activity>
+        <activity android:name=".view.activity.RiwayatActivity"></activity>
+        <activity android:name=".view.activity.DetailKkActivity" />
+        <activity android:name=".view.activity.DetailPendudukActivity" />
+        <activity android:name=".view.activity.TambahKritikActivity" />
         <activity android:name=".view.activity.DetailKritikActivity" />
         <activity android:name=".view.activity.DaftarAsset" />
         <activity android:name=".view.activity.BantuanActivity" />

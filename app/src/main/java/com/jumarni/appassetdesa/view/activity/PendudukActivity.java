@@ -1,9 +1,12 @@
 package com.jumarni.appassetdesa.view.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -19,11 +22,14 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.jumarni.appassetdesa.R;
 import com.jumarni.appassetdesa.api.URLServer;
 import com.jumarni.appassetdesa.model.DataPendudukModel;
+import com.jumarni.appassetdesa.model.Dusun;
 import com.jumarni.appassetdesa.presentasi.PendudukAdapter;
 
 import org.json.JSONArray;
@@ -34,11 +40,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
+@SuppressLint( "SetTextI18n" )
 public class PendudukActivity extends AppCompatActivity {
     private ImageView btn_kembali, btn_setting;
     private StringRequest getPenduduk, getJmlPenduduk, getJmlRT;
-    public static ArrayList<DataPendudukModel> pendudukModels;
+    public static ArrayList<Dusun> pendudukModels;
     private PendudukAdapter adapter;
     private SwipeRefreshLayout sw_data;
     public static RecyclerView rc_data;
@@ -52,6 +60,8 @@ public class PendudukActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_penduduk);
         init();
+        setGetJmlRT();
+        setGetJmlPenduduk();
     }
 
     public void init() {
@@ -95,38 +105,32 @@ public class PendudukActivity extends AppCompatActivity {
     public void setGetPenduduk() {
         pendudukModels = new ArrayList<>();
         sw_data.setRefreshing(true);
-
-        getPenduduk = new StringRequest(Request.Method.GET, URLServer.GETPENDUDUK, response -> {
+        getPenduduk = new StringRequest(Request.Method.GET, URLServer.GETDUSUN, response -> {
             try {
                 JSONObject object = new JSONObject(response);
                 if (object.getBoolean("status")) {
                     JSONArray data = new JSONArray(object.getString("data"));
                     for (int i = 0; i < data.length(); i++) {
-
                         JSONObject getData = data.getJSONObject(i);
-
-                        DataPendudukModel getPenduduk = new DataPendudukModel();
-                        getPenduduk.setNama_kk(getData.getString("nama_kk"));
-                        getPenduduk.setRt(getData.getString("rt"));
+                        Dusun getPenduduk = new Dusun();
                         getPenduduk.setNama_dusun(getData.getString("nama_dusun"));
-                        getPenduduk.setTgl_lahir(getData.getString("tgl_lahir"));
-                        getPenduduk.setCreated_at(getData.getString("created_at"));
+                        getPenduduk.setId_dusun(getData.getInt("id_dusun"));
                         pendudukModels.add(getPenduduk);
-
                     }
                     adapter = new PendudukAdapter(this, pendudukModels);
                     rc_data.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
                     rc_data.setAdapter(adapter);
                 } else {
+                    showError(object.getString("message"));
                     Toast.makeText(this, object.getString("message"), Toast.LENGTH_SHORT).show();
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
+                showError(e.toString());
             }
             sw_data.setRefreshing(false);
         }, error -> {
             sw_data.setRefreshing(false);
-            error.printStackTrace();
+            Log.d("respon", "err: " + error.networkResponse);
         }) {
             @Nullable
             @Override
@@ -137,6 +141,25 @@ public class PendudukActivity extends AppCompatActivity {
                 return map;
             }
         };
+        getPenduduk.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 2000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                    showError("Koneksi gagal");
+                }
+            }
+        });
         RequestQueue koneksi = Volley.newRequestQueue(this);
         koneksi.add(getPenduduk);
     }
@@ -149,15 +172,15 @@ public class PendudukActivity extends AppCompatActivity {
                 if (object.getBoolean("status")) {
                     jml_penduduk.setText("" + object.getInt("data"));
                 } else {
-                    Toast.makeText(this, object.getString("message"), Toast.LENGTH_SHORT).show();
+                    showError(object.getString("message"));
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
+                showError(e.toString());
             }
             sw_data.setRefreshing(false);
         }, error -> {
             sw_data.setRefreshing(false);
-            error.printStackTrace();
+            Log.d("respon", "err: " + error.networkResponse);
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -167,27 +190,46 @@ public class PendudukActivity extends AppCompatActivity {
                 return map;
             }
         };
+        getJmlPenduduk.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 2000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                    showError("Koneksi gagal");
+                }
+            }
+        });
         RequestQueue koneksi = Volley.newRequestQueue(this);
         koneksi.add(getJmlPenduduk);
     }
 
     public void setGetJmlRT() {
         sw_data.setRefreshing(true);
-        getJmlPenduduk = new StringRequest(Request.Method.GET, URLServer.GETJUMLAHRT, response -> {
+        getJmlRT = new StringRequest(Request.Method.GET, URLServer.GETJUMLAHRT, response -> {
             try {
                 JSONObject object = new JSONObject(response);
                 if (object.getBoolean("status")) {
                     jml_rt.setText("" + object.getInt("data"));
                 } else {
-                    Toast.makeText(this, object.getString("message"), Toast.LENGTH_SHORT).show();
+                    showError(object.getString("message"));
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
+                showError(e.toString());
             }
             sw_data.setRefreshing(false);
         }, error -> {
             sw_data.setRefreshing(false);
-            error.printStackTrace();
+            Log.d("respon", "err: " + error.networkResponse);
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -197,15 +239,39 @@ public class PendudukActivity extends AppCompatActivity {
                 return map;
             }
         };
+        getJmlRT.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 2000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                    showError("Koneksi gagal");
+                }
+            }
+        });
         RequestQueue koneksi = Volley.newRequestQueue(this);
-        koneksi.add(getJmlPenduduk);
+        koneksi.add(getJmlRT);
+    }
+
+    private void showError(String string) {
+        new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
+                .setTitleText("Oops...")
+                .setContentText(string)
+                .show();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setGetPenduduk();
-        setGetJmlRT();
-        setGetJmlPenduduk();
     }
 }

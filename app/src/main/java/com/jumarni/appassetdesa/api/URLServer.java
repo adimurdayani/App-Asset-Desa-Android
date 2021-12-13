@@ -11,9 +11,16 @@ public class URLServer {
     public static final String POSTPROFILE = BASE_URL + "user/edit";
     public static final String POSTPASSWORD = BASE_URL + "user/password";
     public static final String GETASSET = BASE_URL + "asset/aset";
+    public static final String POSTASSET = BASE_URL + "asset/update";
     public static final String POSTPENYEWA = BASE_URL + "penyewa/penyewa";
-    public static final String GETPENDUDUK = BASE_URL + "penduduk";
+    public static final String GETPENDUDUK = BASE_URL + "penduduk?kk_id=";
+    public static final String GETNAMAPENDUDUK = BASE_URL + "penduduk/namakk?dusun_id=";
+    public static final String GETDUSUN = BASE_URL + "penduduk/dusun";
     public static final String POSTKRITIK = BASE_URL + "kritik/kritik";
     public static final String GETJUMLAHPENDUDUK = BASE_URL + "penduduk/jumlahpenduduk";
     public static final String GETJUMLAHRT = BASE_URL + "penduduk/jumlahrt";
+    public static final String GETJMLPERRT = BASE_URL + "penduduk/getrt?dusun_id=";
+    public static final String GETJMLKK = BASE_URL + "penduduk/jmlkk?dusun_id=";
+    public static final String GETJMLART = BASE_URL + "penduduk/jmlart?kk_id=";
+    public static final String GETRIWAYAT = BASE_URL + "penyewa?user_id=";
 }

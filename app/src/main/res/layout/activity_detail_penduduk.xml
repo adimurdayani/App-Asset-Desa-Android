@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey_001"
-    tools:context=".view.activity.PendudukActivity">
+    tools:context=".view.activity.DetailPendudukActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/top"
@@ -83,71 +83,6 @@
         app:cardElevation="8dp"
         app:contentPaddingRight="20dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_medium"
-                        android:text="Jumlah Penduduk"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/jml_penduduk"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_bold"
-                        android:text="0"
-                        android:textColor="@color/white"
-                        android:textSize="24sp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_medium"
-                        android:text="Jumlah RT"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/jml_rt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_bold"
-                        android:text="0"
-                        android:textColor="@color/white"
-                        android:textSize="24sp" />
-
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
-
     </androidx.cardview.widget.CardView>
 
     <LinearLayout
@@ -163,7 +98,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginBottom="10dp"
             android:fontFamily="@font/poppins_bold"
-            android:text="Daftar Dusun"
+            android:text="Daftar Nama KK"
             android:textColor="@color/black"
             android:textSize="18sp" />
 
@@ -179,4 +114,5 @@
                 tools:listitem="@layout/list_penduduk" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </LinearLayout>
+
 </RelativeLayout>

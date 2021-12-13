@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey_001"
-    tools:context=".view.activity.PendudukActivity">
+    tools:context=".view.activity.RiwayatActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/top"
@@ -73,87 +72,10 @@
         </LinearLayout>
     </LinearLayout>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/top3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/top2"
-        android:layout_margin="16dp"
-        app:cardBackgroundColor="@color/green"
-        app:cardElevation="8dp"
-        app:contentPaddingRight="20dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_medium"
-                        android:text="Jumlah Penduduk"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/jml_penduduk"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_bold"
-                        android:text="0"
-                        android:textColor="@color/white"
-                        android:textSize="24sp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_medium"
-                        android:text="Jumlah RT"
-                        android:textColor="@color/white"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/jml_rt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_bold"
-                        android:text="0"
-                        android:textColor="@color/white"
-                        android:textSize="24sp" />
-
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/top3"
+        android:layout_below="@id/top2"
         android:background="@color/white"
         android:orientation="vertical">
 
@@ -163,7 +85,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginBottom="10dp"
             android:fontFamily="@font/poppins_bold"
-            android:text="Daftar Dusun"
+            android:text="List Riwayat"
             android:textColor="@color/black"
             android:textSize="18sp" />
 
@@ -176,7 +98,8 @@
                 android:id="@+id/rc_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:listitem="@layout/list_penduduk" />
+                tools:listitem="@layout/list_riwayat" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </LinearLayout>
+
 </RelativeLayout>

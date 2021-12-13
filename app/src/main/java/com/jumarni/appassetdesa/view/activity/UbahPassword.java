@@ -1,12 +1,15 @@
 package com.jumarni.appassetdesa.view.activity;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -20,6 +23,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputEditText;
@@ -36,6 +41,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
 public class UbahPassword extends AppCompatActivity {
 
     private ImageView btn_kembali;
@@ -45,15 +52,6 @@ public class UbahPassword extends AppCompatActivity {
     private String password, konfirmasi_password, id;
     private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
-    public static final Pattern PASSWORD_FORMAT = Pattern.compile("^" +
-            "(?=.*[1-9])" + //harus menggunakan satu angka
-            "(?=.*[a-z])" + //harus menggunakan abjad
-            "(?=.*[A-Z])" + //harus menggunakan huruf kapital
-            "(?=.*[@#$%^&+=])" + //harus menggunakan sepesial karakter
-            "(?=\\S+$)" + // tidak menggunakan spasi
-            ".{6,}" + //harus lebih dari 6 karakter
-            "$"
-    );
     private StringRequest ubahPassword;
     private TextView id_regis;
     private ProgressDialog dialog;
@@ -66,6 +64,7 @@ public class UbahPassword extends AppCompatActivity {
         init();
     }
 
+    @SuppressLint( "SetTextI18n" )
     public void init() {
         preferences = getApplication().getSharedPreferences("user", Context.MODE_PRIVATE);
 
@@ -79,7 +78,7 @@ public class UbahPassword extends AppCompatActivity {
 
         id_regis.setText("" + preferences.getInt("id_regis", 0));
 
-        dialog= new ProgressDialog(this);
+        dialog = new ProgressDialog(this);
         dialog.setCancelable(false);
 
         btn_kembali.setOnClickListener(v -> {
@@ -107,23 +106,21 @@ public class UbahPassword extends AppCompatActivity {
                     editor.clear();
                     editor.apply();
 
-                    Toast.makeText(this, "Update password success!", Toast.LENGTH_LONG).show();
+                    showDialog();
                     Intent intent = new Intent(this, LoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(this, "Message: " + object.getString("message"), Toast.LENGTH_SHORT).show();
+                    showError(object.getString("message"));
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Message: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                showError(e.toString());
             }
             dialog.dismiss();
         }, error -> {
             dialog.dismiss();
-            error.printStackTrace();
-            Toast.makeText(this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.d("respon", "err: " + error.networkResponse);
         }) {
             @Nullable
             @Override
@@ -134,8 +131,46 @@ public class UbahPassword extends AppCompatActivity {
                 return map;
             }
         };
+        setKoneksiInternet();
         RequestQueue koneksi = Volley.newRequestQueue(this);
         koneksi.add(ubahPassword);
+    }
+
+
+    private void showDialog() {
+        new SweetAlertDialog(this, SweetAlertDialog.SUCCESS_TYPE)
+                .setTitleText("Sukses!")
+                .setContentText("You clicked the button!")
+                .show();
+    }
+
+    private void setKoneksiInternet() {
+        ubahPassword.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 2000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                    showError("Koneksi gagal");
+                }
+            }
+        });
+    }
+
+    private void showError(String string) {
+        new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
+                .setTitleText("Oops...")
+                .setContentText(string)
+                .show();
     }
 
     public void getinputtext() {
@@ -159,8 +194,6 @@ public class UbahPassword extends AppCompatActivity {
                     l_password.setErrorEnabled(false);
                 } else if (password.length() > 7) {
                     l_password.setErrorEnabled(false);
-                } else if (PASSWORD_FORMAT.matcher(password).matches()) {
-                    l_password.setErrorEnabled(false);
                 }
             }
 
@@ -180,8 +213,6 @@ public class UbahPassword extends AppCompatActivity {
                 if (konfirmasi_password.isEmpty()) {
                     l_konfirm_password.setErrorEnabled(false);
                 } else if (konfirmasi_password.length() > 7) {
-                    l_konfirm_password.setErrorEnabled(false);
-                } else if (PASSWORD_FORMAT.matcher(konfirmasi_password).matches()) {
                     l_konfirm_password.setErrorEnabled(false);
                 } else if (konfirmasi_password.matches(password)) {
                     l_konfirm_password.setErrorEnabled(false);
@@ -205,10 +236,6 @@ public class UbahPassword extends AppCompatActivity {
             l_password.setErrorEnabled(true);
             l_password.setError("Password tidak boleh kurang dari 6 karakter!");
             return false;
-        } else if (!PASSWORD_FORMAT.matcher(password).matches()) {
-            l_password.setErrorEnabled(true);
-            l_password.setError("Password sangat lemah!. Contoh: @Jad123");
-            return false;
         }
         if (konfirmasi_password.isEmpty()) {
             l_konfirm_password.setErrorEnabled(true);
@@ -217,10 +244,6 @@ public class UbahPassword extends AppCompatActivity {
         } else if (konfirmasi_password.length() < 6) {
             l_konfirm_password.setErrorEnabled(true);
             l_konfirm_password.setError("Konfirmasi password tidak boleh kurang dari 6 karakter!");
-            return false;
-        } else if (!PASSWORD_FORMAT.matcher(konfirmasi_password).matches()) {
-            l_konfirm_password.setErrorEnabled(true);
-            l_konfirm_password.setError("Konfirmasi password sangat lemah!");
             return false;
         } else if (!konfirmasi_password.matches(password)) {
             l_konfirm_password.setErrorEnabled(true);

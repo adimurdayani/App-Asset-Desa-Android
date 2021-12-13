@@ -8,20 +8,20 @@
     android:focusable="true">
 
     <TextView
-        android:id="@+id/nama_dusun"
+        android:id="@+id/nama"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
         android:layout_marginTop="10dp"
         android:fontFamily="@font/poppins_bold"
-        android:text="Nama Dusun"
+        android:text="Nama"
         android:textColor="@color/black"
         android:textSize="16sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/nama_dusun"
+        android:layout_below="@id/nama"
         android:layout_marginTop="10dp"
         android:orientation="vertical">
 
@@ -44,25 +44,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:fontFamily="@font/poppins_medium"
-                    android:text="Jumlah RT"
+                    android:text="JUMLAH ART"
                     android:textColor="@color/black" />
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Jumlah Penduduk"
-                    android:textAlignment="center"
-                    android:textColor="@color/black" />
             </LinearLayout>
 
         </LinearLayout>
@@ -81,36 +65,22 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/jml_rt"
+                    android:id="@+id/jml_art"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:fontFamily="@font/poppins_regular"
                     android:text="0" />
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/jml_penduduk"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="0" />
             </LinearLayout>
 
         </LinearLayout>
     </LinearLayout>
 
     <TextView
-        android:id="@+id/dusun_id"
+        android:id="@+id/id_kk"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:visibility="visible" />
+
 </RelativeLayout>

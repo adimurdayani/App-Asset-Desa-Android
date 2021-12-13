@@ -52,6 +52,4 @@
             android:layout_height="wrap_content"
             tools:listitem="@layout/list_aset" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-
 </RelativeLayout>

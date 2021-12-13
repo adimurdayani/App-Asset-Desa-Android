@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -21,6 +23,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputEditText;
@@ -35,6 +39,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class EditActivity extends AppCompatActivity {
 
@@ -113,21 +119,20 @@ public class EditActivity extends AppCompatActivity {
                     editor.putString("no_hp", data.getString("no_hp"));
                     editor.apply();
 
+                    showDialog();
                     startActivity(new Intent(this, SettingActivity.class));
                     finish();
-                    Toast.makeText(this, "Data tersimpan!", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(this, "Message: " + object.getString("message"), Toast.LENGTH_SHORT).show();
+                    showError(object.getString("message"));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "Message: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                showError(e.toString());
             }
             dialog.dismiss();
         }, error -> {
             dialog.dismiss();
-            error.printStackTrace();
-            Toast.makeText(this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.d("respon", "err: " + error.networkResponse);
         }) {
             @Nullable
             @Override
@@ -141,8 +146,45 @@ public class EditActivity extends AppCompatActivity {
                 return map;
             }
         };
+        setKoneksiInternet();
         RequestQueue koneksi = Volley.newRequestQueue(this);
         koneksi.add(ubahProfil);
+    }
+
+    private void setKoneksiInternet() {
+        ubahProfil.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 2000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                    showError("Koneksi gagal");
+                }
+            }
+        });
+    }
+
+    private void showDialog() {
+        new SweetAlertDialog(this, SweetAlertDialog.SUCCESS_TYPE)
+                .setTitleText("Sukses!")
+                .setContentText("You clicked the button!")
+                .show();
+    }
+
+    private void showError(String string) {
+        new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
+                .setTitleText("Oops...")
+                .setContentText(string)
+                .show();
     }
 
     public void getinputtext() {

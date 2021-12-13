@@ -1,12 +1,17 @@
 package com.jumarni.appassetdesa.view.activity;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -20,31 +25,39 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jumarni.appassetdesa.R;
 import com.jumarni.appassetdesa.api.URLServer;
+import com.jumarni.appassetdesa.helper.FormatRupiah;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
+@SuppressLint( "SetTextI18n" )
 public class SewaActivity extends AppCompatActivity {
-    private LinearLayout btn_pilih;
+    private LinearLayout btn_pilih, div_datasewa;
     private ImageView btn_kembali, btn_setting;
     private TextView txt_namaaset, txt_hargaaset;
-    private TextInputEditText e_harga, e_namaaset;
+    private TextInputEditText e_harga, e_namaaset, e_jumlahbarang;
     private Button btn_kirim;
-    private String harga, nama_aset, id,asset_id, harga_id;
+    private String harga, nama_aset, id, asset_id, jml_aset;
     private ProgressDialog dialog;
-    private TextInputLayout l_harga, l_namaaset;
+    private TextInputLayout l_harga, l_namaaset, l_jumlahbarang;
     private StringRequest kirimData;
     private SharedPreferences preferences;
-    private TextView text_aset_id,txt_hargaid;
+    private TextView text_aset_id;
+    private int jml_barang, jml_item;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +66,7 @@ public class SewaActivity extends AppCompatActivity {
         init();
     }
 
+    @SuppressLint( "SetTextI18n" )
     public void init() {
         preferences = getApplication().getSharedPreferences("user", Context.MODE_PRIVATE);
         btn_pilih = findViewById(R.id.btn_pilih);
@@ -66,18 +80,24 @@ public class SewaActivity extends AppCompatActivity {
         e_harga = findViewById(R.id.e_harga);
         e_namaaset = findViewById(R.id.e_nama_aset);
         text_aset_id = findViewById(R.id.asset_id);
-        txt_hargaid = findViewById(R.id.harga_id);
-
-        txt_hargaaset.setText(getIntent().getStringExtra("harga_aset"));
-        txt_namaaset.setText(getIntent().getStringExtra("nama_aset"));
-        e_namaaset.setText(getIntent().getStringExtra("nama_aset"));
-        e_harga.setText(getIntent().getStringExtra("harga_aset"));
-        text_aset_id.setText(getIntent().getStringExtra("id_aset"));
-        txt_hargaid.setText(getIntent().getStringExtra("id_aset"));
+        div_datasewa = findViewById(R.id.div_datasewa);
+        e_jumlahbarang = findViewById(R.id.e_jumlahbarang);
+        l_jumlahbarang = findViewById(R.id.l_jumlahbarang);
 
         dialog = new ProgressDialog(this);
         dialog.setCancelable(false);
 
+        e_namaaset.setText(getIntent().getStringExtra("nama_aset"));
+        e_harga.setText(getIntent().getStringExtra("harga_aset"));
+        text_aset_id.setText("" + getIntent().getIntExtra("id_aset", 0));
+        jml_item = getIntent().getIntExtra("jml_aset", 0);
+
+        setButton();
+        cekvalidasi();
+        getJumlahbarang();
+    }
+
+    private void setButton() {
         btn_kembali.setOnClickListener(v -> {
             super.onBackPressed();
         });
@@ -92,10 +112,43 @@ public class SewaActivity extends AppCompatActivity {
         });
         btn_kirim.setOnClickListener(v -> {
             if (validasi()) {
-                setKirimData();
+                if (jml_item <= 0) {
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                    dialog.setIcon(R.drawable.ic_baseline_info_24);
+                    dialog.setTitle("Item Tidak Ada!");
+                    dialog.setMessage("Aset yang dipilih belum tersedia. Silahkan pilih aset yang lain!");
+                    dialog.setCancelable(true);
+                    dialog.setNegativeButton("Tutup", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog.show();
+                } else {
+                    setKirimData();
+                    setUpdatebarang();
+                }
             }
         });
-        cekvalidasi();
+    }
+
+    private void getJumlahbarang() {
+        jml_barang = getIntent().getIntExtra("id_aset", 0);
+        if (jml_barang != 0) {
+            l_jumlahbarang.setVisibility(View.VISIBLE);
+            div_datasewa.setVisibility(View.VISIBLE);
+
+            FormatRupiah formatRupiah = new FormatRupiah();
+            String harga_aset = getIntent().getStringExtra("harga_aset");
+            String hasil = formatRupiah.formatRupiah(Double.parseDouble(harga_aset));
+
+            txt_hargaaset.setText(hasil);
+            txt_namaaset.setText(getIntent().getStringExtra("nama_aset"));
+        } else {
+            l_jumlahbarang.setVisibility(View.GONE);
+            div_datasewa.setVisibility(View.GONE);
+        }
     }
 
     public void setKirimData() {
@@ -105,18 +158,17 @@ public class SewaActivity extends AppCompatActivity {
             try {
                 JSONObject object = new JSONObject(response);
                 if (object.getBoolean("status")) {
-                    Toast.makeText(this, "Data telah terikim!", Toast.LENGTH_LONG).show();
+                    showDialog();
                 } else {
-                    Toast.makeText(this, "Message: " + object.getString("message"), Toast.LENGTH_SHORT).show();
+                    showError(object.getString("message"));
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Message: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                showError(e.toString());
             }
             dialog.dismiss();
         }, error -> {
             dialog.dismiss();
-            error.printStackTrace();
+            Log.d("respon", "err: " + error.networkResponse);
         }) {
             @Nullable
             @Override
@@ -124,12 +176,78 @@ public class SewaActivity extends AppCompatActivity {
                 HashMap<String, String> map = new HashMap<>();
                 map.put("user_id", id);
                 map.put("aset_id", asset_id);
-                map.put("harga_id", harga_id);
+                map.put("harga_id", asset_id);
                 return map;
             }
         };
+        setKoneksiInternet();
         RequestQueue koneksi = Volley.newRequestQueue(this);
         koneksi.add(kirimData);
+    }
+
+    public void setUpdatebarang() {
+        kirimData = new StringRequest(Request.Method.POST, URLServer.POSTASSET, response -> {
+            try {
+                JSONObject object = new JSONObject(response);
+                if (object.getBoolean("status")) {
+
+                } else {
+                    showError(object.getString("message"));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                showError(e.toString());
+            }
+        }, error -> {
+            Log.d("respon", "err: " + error.networkResponse);
+        }) {
+            @Nullable
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String, String> map = new HashMap<>();
+                map.put("id_aset", asset_id);
+                map.put("jml_aset", jml_aset);
+                return map;
+            }
+        };
+        setKoneksiInternet();
+        RequestQueue koneksi = Volley.newRequestQueue(this);
+        koneksi.add(kirimData);
+    }
+
+    private void showDialog() {
+        new SweetAlertDialog(this, SweetAlertDialog.SUCCESS_TYPE)
+                .setTitleText("Sukses!")
+                .show();
+    }
+
+    private void setKoneksiInternet() {
+        kirimData.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 2000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 2000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                    showError("Koneksi gagal");
+                }
+            }
+        });
+    }
+
+    private void showError(String string) {
+        new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
+                .setTitleText("Oops...")
+                .setContentText(string)
+                .show();
     }
 
     public void getinputtext() {
@@ -137,7 +255,8 @@ public class SewaActivity extends AppCompatActivity {
         nama_aset = e_namaaset.getText().toString().trim();
         id = String.valueOf(preferences.getInt("id_regis", 0));
         asset_id = text_aset_id.getText().toString().trim();
-        harga_id = txt_hargaid.getText().toString().trim();
+        jml_aset = e_jumlahbarang.getText().toString().trim();
+
     }
 
     public void cekvalidasi() {
@@ -178,6 +297,24 @@ public class SewaActivity extends AppCompatActivity {
 
             }
         });
+        e_jumlahbarang.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (jml_aset.isEmpty()) {
+                    l_jumlahbarang.setErrorEnabled(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     private boolean validasi() {
@@ -190,6 +327,12 @@ public class SewaActivity extends AppCompatActivity {
         if (harga.isEmpty()) {
             l_harga.setErrorEnabled(true);
             l_harga.setError("Kolom harga tidak boleh kosong!");
+            return false;
+        }
+
+        if (jml_aset.isEmpty()) {
+            l_jumlahbarang.setErrorEnabled(true);
+            l_jumlahbarang.setError("Kolom jumlah barang tidak boleh kosong!");
             return false;
         }
 

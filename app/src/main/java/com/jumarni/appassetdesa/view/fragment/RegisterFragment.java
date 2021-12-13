@@ -21,6 +21,8 @@ import androidx.fragment.app.FragmentManager;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputEditText;
@@ -47,15 +49,6 @@ public class RegisterFragment extends Fragment {
     private TextInputEditText e_username, e_password, e_nama, e_email, e_konfir_password;
     private ProgressBar progressBar;
     private String nama, username, email, password, konfirmasi_password, getToken;
-    public static final Pattern PASSWORD_FORMAT = Pattern.compile("^" +
-            "(?=.*[1-9])" + //harus menggunakan satu angka
-            "(?=.*[a-z])" + //harus menggunakan abjad
-            "(?=.*[A-Z])" + //harus menggunakan huruf kapital
-            "(?=.*[@#$%^&+=])" + //harus menggunakan sepesial karakter
-            "(?=\\S+$)" + // tidak menggunakan spasi
-            ".{6,}" + //harus lebih dari 6 karakter
-            "$"
-    );
     private StringRequest kirimDataUser;
     private ArrayList<DataUserRegis> dataUserRegis;
 
@@ -151,6 +144,22 @@ public class RegisterFragment extends Fragment {
                 return map;
             }
         };
+        kirimDataUser.setRetryPolicy(new RetryPolicy() {
+            @Override
+            public int getCurrentTimeout() {
+                return 5000;
+            }
+
+            @Override
+            public int getCurrentRetryCount() {
+                return 5000;
+            }
+
+            @Override
+            public void retry(VolleyError error) throws VolleyError {
+
+            }
+        });
         RequestQueue koneksi = Volley.newRequestQueue(requireContext());
         koneksi.add(kirimDataUser);
     }
@@ -241,8 +250,6 @@ public class RegisterFragment extends Fragment {
                     l_password.setErrorEnabled(false);
                 } else if (password.length() > 7) {
                     l_password.setErrorEnabled(false);
-                } else if (PASSWORD_FORMAT.matcher(password).matches()) {
-                    l_password.setErrorEnabled(false);
                 }
             }
 
@@ -263,9 +270,7 @@ public class RegisterFragment extends Fragment {
                     l_konfir_password.setErrorEnabled(false);
                 } else if (konfirmasi_password.length() > 7) {
                     l_konfir_password.setErrorEnabled(false);
-                } else if (PASSWORD_FORMAT.matcher(konfirmasi_password).matches()) {
-                    l_konfir_password.setErrorEnabled(false);
-                } else if (konfirmasi_password.matches(password)) {
+                }else if (konfirmasi_password.matches(password)) {
                     l_konfir_password.setErrorEnabled(false);
                 }
             }
@@ -307,10 +312,6 @@ public class RegisterFragment extends Fragment {
             l_password.setErrorEnabled(true);
             l_password.setError("Password tidak boleh kurang dari 6 karakter!");
             return false;
-        } else if (!PASSWORD_FORMAT.matcher(password).matches()) {
-            l_password.setErrorEnabled(true);
-            l_password.setError("Password sangat lemah!. Contoh: @Jad123");
-            return false;
         }
         if (konfirmasi_password.isEmpty()) {
             l_konfir_password.setErrorEnabled(true);
@@ -319,10 +320,6 @@ public class RegisterFragment extends Fragment {
         } else if (konfirmasi_password.length() < 6) {
             l_konfir_password.setErrorEnabled(true);
             l_konfir_password.setError("Konfirmasi password tidak boleh kurang dari 6 karakter!");
-            return false;
-        } else if (!PASSWORD_FORMAT.matcher(konfirmasi_password).matches()) {
-            l_konfir_password.setErrorEnabled(true);
-            l_konfir_password.setError("Konfirmasi password sangat lemah!");
             return false;
         } else if (!konfirmasi_password.matches(password)) {
             l_konfir_password.setErrorEnabled(true);

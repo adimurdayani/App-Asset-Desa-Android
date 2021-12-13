@@ -1,8 +1,16 @@
 package com.jumarni.appassetdesa.model;
 
 public class DataAssetDesaModel {
-    private int id_aset;
+    private int id_aset, jml_aset;
     private String nama_aset, harga, created_at;
+
+    public int getJml_aset() {
+        return jml_aset;
+    }
+
+    public void setJml_aset(int jml_aset) {
+        this.jml_aset = jml_aset;
+    }
 
     public int getId_aset() {
         return id_aset;
