@@ -131,16 +131,7 @@ public class PendudukActivity extends AppCompatActivity {
         }, error -> {
             sw_data.setRefreshing(false);
             Log.d("respon", "err: " + error.networkResponse);
-        }) {
-            @Nullable
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                String generate_token = preferences.getString("token_id", "");
-                HashMap<String, String> map = new HashMap<>();
-                map.put("token_generate", generate_token);
-                return map;
-            }
-        };
+        });
         getPenduduk.setRetryPolicy(new RetryPolicy() {
             @Override
             public int getCurrentTimeout() {
@@ -181,15 +172,7 @@ public class PendudukActivity extends AppCompatActivity {
         }, error -> {
             sw_data.setRefreshing(false);
             Log.d("respon", "err: " + error.networkResponse);
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                String token = preferences.getString("token", "");
-                HashMap<String, String> map = new HashMap<>();
-                map.put("Authorization", "Bearer " + token);
-                return map;
-            }
-        };
+        });
         getJmlPenduduk.setRetryPolicy(new RetryPolicy() {
             @Override
             public int getCurrentTimeout() {
@@ -230,15 +213,7 @@ public class PendudukActivity extends AppCompatActivity {
         }, error -> {
             sw_data.setRefreshing(false);
             Log.d("respon", "err: " + error.networkResponse);
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                String token = preferences.getString("token", "");
-                HashMap<String, String> map = new HashMap<>();
-                map.put("Authorization", "Bearer " + token);
-                return map;
-            }
-        };
+        });
         getJmlRT.setRetryPolicy(new RetryPolicy() {
             @Override
             public int getCurrentTimeout() {

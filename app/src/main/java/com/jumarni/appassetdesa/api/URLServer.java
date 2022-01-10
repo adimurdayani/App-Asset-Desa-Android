@@ -1,7 +1,7 @@
 package com.jumarni.appassetdesa.api;
 
 public class URLServer {
-    public static final String BASE_URL = "http://sispasdes.my.id/api/";
+    public static final String BASE_URL = "http://sispasdes.my.id//api/";
     public static final String LOGIN = BASE_URL + "auth/login";
     public static final String LOGOUT = BASE_URL + "auth/logout";
     public static final String REGISTER = BASE_URL + "auth/register";
@@ -23,4 +23,5 @@ public class URLServer {
     public static final String GETJMLKK = BASE_URL + "penduduk/jmlkk?dusun_id=";
     public static final String GETJMLART = BASE_URL + "penduduk/jmlart?kk_id=";
     public static final String GETRIWAYAT = BASE_URL + "penyewa?user_id=";
+    public static final String GETASETTIDAKDISEWAKAN = BASE_URL + "asset/aset_t_sewa";
 }

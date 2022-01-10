@@ -98,7 +98,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginBottom="10dp"
             android:fontFamily="@font/poppins_bold"
-            android:text="Detail Kartu Keluarga"
+            android:text="Detail"
             android:textColor="@color/black"
             android:textSize="18sp" />
 

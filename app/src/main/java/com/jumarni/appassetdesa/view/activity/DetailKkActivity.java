@@ -69,7 +69,9 @@ public class DetailKkActivity extends AppCompatActivity {
                     for (int i = 0; i < data.length(); i++) {
                         JSONObject getData = data.getJSONObject(i);
                         DataPendudukModel p = new DataPendudukModel();
-                        p.setNama_kk(getData.getString("nama_kk"));
+                        p.setNo_kk(getData.getString("no_kk"));
+                        p.setNik(getData.getString("nik"));
+                        p.setTgl_lahir(getData.getString("tgl_lahir"));
                         p.setNama_art(getData.getString("nama_art"));
                         p.setKelamin(getData.getString("kelamin"));
                         pendudukModels.add(p);

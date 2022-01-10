@@ -2,7 +2,23 @@ package com.jumarni.appassetdesa.model;
 
 public class DataPendudukModel {
     private int id_pend, dusun_id, rt_id, kk_id, ket;
-    private String nama_kk, nama_art, tgl_lahir, kelamin, created_at, nama_dusun, rt;
+    private String nama_kk, nama_art, tgl_lahir, kelamin, created_at, nama_dusun, rt, nik, no_kk;
+
+    public String getNik() {
+        return nik;
+    }
+
+    public void setNik(String nik) {
+        this.nik = nik;
+    }
+
+    public String getNo_kk() {
+        return no_kk;
+    }
+
+    public void setNo_kk(String no_kk) {
+        this.no_kk = no_kk;
+    }
 
     public int getKk_id() {
         return kk_id;

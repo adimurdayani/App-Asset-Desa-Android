@@ -21,6 +21,9 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -34,17 +37,23 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.jumarni.appassetdesa.R;
 import com.jumarni.appassetdesa.api.URLServer;
 import com.jumarni.appassetdesa.helper.FormatRupiah;
+import com.jumarni.appassetdesa.model.AsetTidakDisewakan;
+import com.jumarni.appassetdesa.model.DataKritikModel;
+import com.jumarni.appassetdesa.presentasi.DaftarAssetTdkDisewakanAdapter;
+import com.jumarni.appassetdesa.presentasi.KritikLimitAdapter;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
-@SuppressLint( "SetTextI18n" )
+@SuppressLint("SetTextI18n")
 public class SewaActivity extends AppCompatActivity {
     private LinearLayout btn_pilih, div_datasewa;
     private ImageView btn_kembali, btn_setting;
@@ -56,8 +65,12 @@ public class SewaActivity extends AppCompatActivity {
     private TextInputLayout l_harga, l_namaaset, l_jumlahbarang;
     private StringRequest kirimData;
     private SharedPreferences preferences;
+    private RecyclerView rc_data;
     private TextView text_aset_id;
+    private DaftarAssetTdkDisewakanAdapter adapter;
     private int jml_barang, jml_item;
+    private ArrayList<AsetTidakDisewakan> asetTidakDisewakans;
+    private RecyclerView.LayoutManager layoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +79,48 @@ public class SewaActivity extends AppCompatActivity {
         init();
     }
 
-    @SuppressLint( "SetTextI18n" )
+    private void getAset() {
+        asetTidakDisewakans = new ArrayList<>();
+        kirimData = new StringRequest(Request.Method.GET, URLServer.GETASETTIDAKDISEWAKAN, response -> {
+            try {
+                JSONObject object = new JSONObject(response);
+                if (object.getBoolean("status")) {
+                    JSONArray data = new JSONArray(object.getString("data"));
+                    for (int i = 0; i < data.length(); i++) {
+                        JSONObject getData = data.getJSONObject(i);
+                        AsetTidakDisewakan getaset = new AsetTidakDisewakan();
+                        getaset.setNama_barang(getData.getString("nama_barang"));
+                        getaset.setJml_barang(getData.getString("jml_barang"));
+                        asetTidakDisewakans.add(getaset);
+                    }
+                    adapter = new DaftarAssetTdkDisewakanAdapter(this, asetTidakDisewakans);
+                    rc_data.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+                    rc_data.setAdapter(adapter);
+                } else {
+                    showError(object.getString("message"));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                showError(e.toString());
+            }
+        }, error -> {
+            Log.d("respon", "err: " + error.networkResponse);
+        }) {
+            @Nullable
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String, String> map = new HashMap<>();
+                map.put("id_aset", asset_id);
+                map.put("jml_aset", jml_aset);
+                return map;
+            }
+        };
+        setKoneksiInternet();
+        RequestQueue koneksi = Volley.newRequestQueue(this);
+        koneksi.add(kirimData);
+    }
+
+    @SuppressLint("SetTextI18n")
     public void init() {
         preferences = getApplication().getSharedPreferences("user", Context.MODE_PRIVATE);
         btn_pilih = findViewById(R.id.btn_pilih);
@@ -83,6 +137,7 @@ public class SewaActivity extends AppCompatActivity {
         div_datasewa = findViewById(R.id.div_datasewa);
         e_jumlahbarang = findViewById(R.id.e_jumlahbarang);
         l_jumlahbarang = findViewById(R.id.l_jumlahbarang);
+        rc_data = findViewById(R.id.rc_data);
 
         dialog = new ProgressDialog(this);
         dialog.setCancelable(false);
@@ -91,6 +146,10 @@ public class SewaActivity extends AppCompatActivity {
         e_harga.setText(getIntent().getStringExtra("harga_aset"));
         text_aset_id.setText("" + getIntent().getIntExtra("id_aset", 0));
         jml_item = getIntent().getIntExtra("jml_aset", 0);
+
+        layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        rc_data.setLayoutManager(layoutManager);
+        rc_data.setHasFixedSize(true);
 
         setButton();
         cekvalidasi();
@@ -337,5 +396,11 @@ public class SewaActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        getAset();
+        super.onResume();
     }
 }

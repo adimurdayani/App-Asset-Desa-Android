@@ -39,12 +39,14 @@ public class DetailARTAdapter extends RecyclerView.Adapter<DetailARTAdapter.Hold
         return new HolderData(view);
     }
 
-    @SuppressLint( "SetTextI18n" )
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull HolderData holder, int position) {
         DataPendudukModel datanama = pendudukModels.get(position);
-        holder.nama.setText(datanama.getNama_kk());
-        holder.nama_art.setText(datanama.getNama_kk() + " - " + datanama.getNama_art());
+        holder.nik.setText(datanama.getNik());
+        holder.no_kk.setText(datanama.getNo_kk());
+        holder.tgl_lahir.setText(datanama.getTgl_lahir());
+        holder.nama_art.setText(datanama.getNama_art());
         holder.kelamin.setText(datanama.getKelamin());
     }
 
@@ -84,15 +86,18 @@ public class DetailARTAdapter extends RecyclerView.Adapter<DetailARTAdapter.Hold
     }
 
     public class HolderData extends RecyclerView.ViewHolder {
-        private TextView nama, nama_art, kelamin;
+        private TextView nik, no_kk, nama_art, tgl_lahir, kelamin, dusun;
         private RelativeLayout layout;
 
         public HolderData(@NonNull View itemView) {
             super(itemView);
-            nama = itemView.findViewById(R.id.nama);
+            nik = itemView.findViewById(R.id.nik);
+            no_kk = itemView.findViewById(R.id.no_kk);
             nama_art = itemView.findViewById(R.id.nama_art);
-            layout = itemView.findViewById(R.id.layout);
+            tgl_lahir = itemView.findViewById(R.id.tgl_lahir);
             kelamin = itemView.findViewById(R.id.kelamin);
+            dusun = itemView.findViewById(R.id.dusun);
+            layout = itemView.findViewById(R.id.layout);
         }
     }
 }

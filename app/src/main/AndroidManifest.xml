@@ -5,6 +5,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
         android:allowBackup="true"
@@ -15,7 +16,8 @@
         android:theme="@style/Theme.AppAssetDesa"
         android:usesCleartextTraffic="true"
         Android:noHistory="true">
-        <activity android:name=".view.activity.RiwayatActivity"></activity>
+        <activity android:name=".view.activity.DetailPendudukID" />
+        <activity android:name=".view.activity.RiwayatActivity" />
         <activity android:name=".view.activity.DetailKkActivity" />
         <activity android:name=".view.activity.DetailPendudukActivity" />
         <activity android:name=".view.activity.TambahKritikActivity" />

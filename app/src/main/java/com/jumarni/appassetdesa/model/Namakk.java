@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
 import java.io.Serializable;
 
 public class Namakk {
-    private int id_kk,dusun_id;
+    private int id_kk, dusun_id;
     private String nama_kk, created_at;
 
     public int getDusun_id() {
